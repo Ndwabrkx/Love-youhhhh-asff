@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Love My Little Devil</title>
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(to bottom right, #ff99cc, #ffe6f0);
+      overflow: hidden;
+      font-family: 'Cursive', sans-serif;
+    }
+    canvas {
+      display: block;
+    }
+    #popup, #instructions {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff0f5;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(255, 105, 180, 0.5);
+      z-index: 1000;
+      text-align: center;
+      width: 80%;
+      max-width: 500px;
+      animation: fadeIn 1s ease-out forwards;
+    }
+    #popup h2, #instructions h2 {
+      color: #ff4081;
+      margin-bottom: 15px;
+    }
+    #popup p, #instructions p {
+      color: #555;
+      font-size: 16px;
+    }
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translate(-50%, -60%); }
+      100% { opacity: 1; transform: translate(-50%, -50%); }
+    }
+    .title-banner {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #e60073;
+      color: white;
+      padding: 10px 30px;
+      font-size: 32px;
+      font-weight: bold;
+      border-radius: 20px;
+      box-shadow: 0 0 15px rgba(255, 0, 128, 0.8);
+      z-index: 100;
+    }
+    .background-decor {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .heart-decor {
+      position: absolute;
+      color: #ff69b4;
+      font-size: 24px;
+      animation: floatDecor 10s infinite ease-in-out;
+    }
+    @keyframes floatDecor {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      50% { opacity: 1; }
+      100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="title-banner">Love My Little Devil ❤️😈</div>
+  <div class="background-decor" id="decor-container"></div>
+  <canvas id="gameCanvas"></canvas>
+  <div id="instructions">
+    <h2>How to Play 💞</h2>
+    <p>Move your mouse to guide the basket and catch the falling hearts. Each heart you collect is a kiss from me to you. Catch 10 to unlock a special love surprise! 💗</p>
+  </div>
+  <div id="popup">
+    <h2>Happy 6 Months, My Love! ❤️</h2>
+    <p>
+      My dearest love, these six months with you have been the most beautiful journey of my life. Every day with you feels like a dream I never want to wake up from. Your smile, your warmth, your kind heart — they’ve captured mine completely. Thank you for every laugh, every hug, every moment. You’re my sunshine in every storm, the rhythm to my heartbeat, and the reason behind my biggest smiles. I can't wait to continue making memories with you, one kiss, one laugh, and one heartbeat at a time. I love you more than words can express, forever and always. 💕
+    </p>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let basket = { x: canvas.width / 2 - 50, y: canvas.height - 100, width: 100, height: 50 };
+    let hearts = [];
+    let heartsCollected = 0;
+    const maxHearts = 10;
+
+    function drawBasket() {
+      ctx.fillStyle = "#ff4081";
+      ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
+      ctx.font = "20px Cursive";
+      ctx.fillStyle = "white";
+      ctx.fillText("Basket", basket.x + 15, basket.y + 30);
+    }
+
+    function drawHearts() {
+      ctx.font = "28px Cursive";
+      ctx.fillStyle = "red";
+      hearts.forEach((heart, index) => {
+        ctx.fillText("❤️", heart.x, heart.y);
+        heart.y += 3;
+
+        if (
+          heart.y > basket.y &&
+          heart.x > basket.x &&
+          heart.x < basket.x + basket.width
+        ) {
+          hearts.splice(index, 1);
+          heartsCollected++;
+          showHeartAnimation(heart.x, heart.y);
+        }
+      });
+    }
+
+    function showHeartAnimation(x, y) {
+      const heart = document.createElement("div");
+      heart.innerHTML = "❤️";
+      heart.style.position = "absolute";
+      heart.style.left = `${x}px`;
+      heart.style.top = `${y}px`;
+      heart.style.fontSize = "24px";
+      heart.style.animation = "floatUp 1s ease-out forwards";
+      document.body.appendChild(heart);
+
+      setTimeout(() => heart.remove(), 1000);
+    }
+
+    function showPopup() {
+      document.getElementById("popup").style.display = "block";
+    }
+
+    function showInstructions() {
+      const instructions = document.getElementById("instructions");
+      instructions.style.display = "block";
+      setTimeout(() => {
+        instructions.style.display = "none";
+      }, 15000);
+    }
+
+    function spawnHeart() {
+      const x = Math.random() * (canvas.width - 30) + 10;
+      hearts.push({ x: x, y: 0 });
+    }
+
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawBasket();
+      drawHearts();
+      if (heartsCollected >= maxHearts) {
+        showPopup();
+        return;
+      }
+      requestAnimationFrame(gameLoop);
+    }
+
+    setInterval(spawnHeart, 1000);
+
+    window.addEventListener("mousemove", (e) => {
+      basket.x = e.clientX - basket.width / 2;
+    });
+
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @keyframes floatUp {
+        0% { transform: translateY(0); opacity: 1; }
+        100% { transform: translateY(-50px); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    function addDecorHearts() {
+      const decorContainer = document.getElementById("decor-container");
+      for (let i = 0; i < 30; i++) {
+        const heart = document.createElement("div");
+        heart.classList.add("heart-decor");
+        heart.innerHTML = "💖";
+        heart.style.left = Math.random() * 100 + "%";
+        heart.style.top = Math.random() * 100 + "%";
+        heart.style.fontSize = Math.random() * 20 + 20 + "px";
+        heart.style.animationDelay = `${Math.random() * 10}s`;
+        decorContainer.appendChild(heart);
+      }
+    }
+
+    showInstructions();
+    addDecorHearts();
+    gameLoop();
+  </script>
+</body>
+</html>
